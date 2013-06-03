@@ -3,6 +3,7 @@ TARGET = ChatterBoxServer
 DEPENDPATH += .
 INCLUDEPATH += .
 
+
 CONFIG += console
 
 QT += core network sql

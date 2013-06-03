@@ -1,0 +1,8 @@
+X - tabwidget fensternamen ändern
+X - im tab lineedit feld keine leerstrings
+X - statusmeldung bei online
+X - tabwidget namensüberprüfung
+ - qtimer gegen spam
+X - registrieung auf latin umstellen anstatt utf8
+ - // sounds
+X - Textnachrichten usermäßig formatieren

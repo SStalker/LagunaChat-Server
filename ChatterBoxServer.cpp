@@ -99,6 +99,7 @@ void ChatterBoxServer::readyRead()
         //qDebug() << "DEBUG: " << QString(debug);
         qDebug() << "Current messageID: " << messageID << endl << "Status of Datastream: " << in.status();
         qDebug() << "Bytes there: " << client->bytesAvailable() << endl;
+//Registration
         if(messageID == 1)
         {
             QString email;
@@ -126,12 +127,38 @@ void ChatterBoxServer::readyRead()
             }
             qDebug() << "Email: " << email << endl << "Username: " << username << endl << "Password: " << password;
 
-            //return;
-
         }
         else if(messageID == 2)
         {
+            int answerID;
+            QString user;
 
+            in >> answerID;
+
+            if(answerID == 3)
+            {
+                // User is now offline
+                // Update DB
+                in >> user;
+                sql->setOnline(false,user);
+
+                // send notification to all friends(who is online), so they know that the user is online
+                QMap<QString, bool> map = sql->getFriends(user,1);
+                QMapIterator<QString, bool> i(map);
+
+                while(i.hasNext())
+                {
+                    i.next();
+                    QTcpSocket *friends = users.value(i.key());
+                    //now send
+                    QDataStream out(friends);
+                    out << (int) 7;
+                    out << (int) 3;
+                    out << user; // Email des Offline Users
+                    out << "\n";
+                }
+
+            }
         }
         else if(messageID == 3)
         {
@@ -457,40 +484,8 @@ void ChatterBoxServer::readyRead()
             }
         }
         else if(messageID == 6){}
-        else if(messageID == 7)
-        {
-            int answerID;
-            QString user;
+        else if(messageID == 7){}
 
-            in >> answerID;
-
-            if(answerID == 3)
-            {
-                // User is now offline
-                // Update DB
-                in >> user;
-                sql->setOnline(false,user);
-
-                // send notification to all friends(who is online), so they know that the user is online
-                QMap<QString, bool> map = sql->getFriends(user,1);
-                QMapIterator<QString, bool> i(map);
-
-                while(i.hasNext())
-                {
-                    i.next();
-                    QTcpSocket *friends = users.value(i.key());
-                    //now send
-                    QDataStream out(friends);
-                    out << (int) 7;
-                    out << (int) 3;
-                    out << user; // Email des Offline Users
-                    out << "\n";
-                }
-
-            }
-
-
-        }
         in >> temp;
 
         qDebug() << "Es sind noch " << client->bytesAvailable() << "Bytes im Socket übrig";
