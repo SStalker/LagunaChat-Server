@@ -483,7 +483,42 @@ void ChatterBoxServer::readyRead()
                 }
             }
         }
-        else if(messageID == 6){}
+        else if(messageID == 6)
+        {
+            QString dataToUser;
+            QString dataFromUser;
+            QString fileName;
+
+            in >> dataToUser;
+            in >> dataFromUser;
+            in >> fileName;
+
+            qDebug() << "User: " << dataFromUser << "want to send a file to " << dataToUser;
+
+            // Data will only be send if the user is online and accepted the request
+            if(sql->isOnline(dataToUser))
+            {
+                // Soo the user is online, then we can send him a message he must acknowlegde
+                QString username = sql->getUsername(dataFromUser);
+                QDataStream out(users.value(dataToUser));
+
+                out << (int) 5;
+                out << (int) 10;
+                out << dataFromUser;
+                out << username;
+                out << fileName;
+                out << "\n";
+            }
+            else
+            {
+                // Error cant send request to user because he is offline
+                QDataStream out(client);
+
+                out << (int) 0;
+                out << (int) 2;
+                out << "\n";
+            }
+        }
         else if(messageID == 7){}
 
         in >> temp;
