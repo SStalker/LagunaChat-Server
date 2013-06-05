@@ -428,6 +428,53 @@ void ChatterBoxServer::readyRead()
             }
             else if(questID == 6)
             {
+                QString userWhoSendFileEmail;
+                QString userWhoGetFileEmail;
+                int ok;
+
+                qDebug() << "Clientanswer of file question";
+
+                in >> userWhoGetFileEmail;
+                in >> userWhoSendFileEmail;
+                in >> ok;
+
+                qDebug() << "User: "
+                         << userWhoGetFileEmail
+                         << " -> "
+                         << userWhoSendFileEmail
+                         << endl
+                         << "Status: "
+                         << ok;
+
+                QTcpSocket *fileSender = users.value(userWhoSendFileEmail);
+
+                if(ok == 1)
+                {
+                    qDebug() << "Gefragter User sagt JA";
+                    QString ipFromUser = client->peerAddress().toString();
+
+                    // send accepted signal to senderclient
+                    qDebug() << "IP of the user who wants an connection: " << ipFromUser;
+                    QDataStream out(fileSender);
+                    out << (int) 5;
+                    out << (int) 7;
+                    out << (int) 1;
+                    out << userWhoGetFileEmail;
+                    out << ipFromUser;
+                    out << "\n";
+                }
+                else
+                {
+                    qDebug() << "Gefragter User sagt NEIN";
+
+                    // send deny signal to senderclient
+                    QDataStream out(fileSender);
+                    out << (int) 5;
+                    out << (int) 7;
+                    out << (int) 0;
+                    out << userWhoGetFileEmail;
+                    out << "\n";
+                }
 
             }
             else if(questID == 7)
