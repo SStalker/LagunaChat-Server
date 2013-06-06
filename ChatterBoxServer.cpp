@@ -535,6 +535,7 @@ void ChatterBoxServer::readyRead()
             QString dataToUser;
             QString dataFromUser;
             QString fileName;
+            QString dataFromUserIp = client->peerAddress().toString();
 
             in >> dataToUser;
             in >> dataFromUser;
@@ -552,6 +553,7 @@ void ChatterBoxServer::readyRead()
                 out << (int) 5;
                 out << (int) 10;
                 out << dataFromUser;
+                out << dataFromUserIp;
                 out << username;
                 out << fileName;
                 out << "\n";
