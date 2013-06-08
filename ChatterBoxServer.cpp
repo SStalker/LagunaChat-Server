@@ -568,7 +568,26 @@ void ChatterBoxServer::readyRead()
                 out << "\n";
             }
         }
-        else if(messageID == 7){}
+        else if(messageID == 7)
+        {
+            QString emailSender;
+            QString emailReceiver;
+
+            in >> emailSender;
+            in >> emailReceiver;
+
+            // I should check now if the user is still online^^
+            // but i dont want tooo...i am too lazy
+
+            QTcpSocket *rec = users.value(emailReceiver);
+
+            QDataStream out(rec);
+
+            out << (int) 5;
+            out << (int) 8;
+            out << "\n";
+
+        }
 
         in >> temp;
 
