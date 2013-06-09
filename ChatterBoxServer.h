@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QDataStream>
 #include <QMap>
 #include <QSet>
 
@@ -16,10 +17,27 @@ class ChatterBoxServer : public QTcpServer
     public:
         ChatterBoxServer(QObject *parent=0);
 
+        void gotRegistrationMessage(QTcpSocket *client);
+        void gotLoginMessage(QTcpSocket *client);
+        void gotChatMessage();
+        void gotUserAddMessage();
+        void gotUserDeleteMessage();
+        void gotFileTranserMessage(QTcpSocket *client);
+
+        void hasUserInvitations(QTcpSocket *client);
+        void hasUserUnreadMessages(QTcpSocket *client);
+
+        void answerOfUserAdd(QTcpSocket *client);
+        void answerOfFileTranser(QTcpSocket *client);
+        void answerOfFileTransferReady();
+
+        void userGoOffline();
+        void sendUserlist(QTcpSocket *client);
+
     private slots:
         void readyRead();
         void disconnected();
-        void sendUserList();
+
         void kick();
         void checkError(QAbstractSocket::SocketError);
     protected:
@@ -31,6 +49,8 @@ class ChatterBoxServer : public QTcpServer
 
         QList<QHostAddress> ipAddresses;
         SQLServer *sql;
+
+        QDataStream in;
 };
 
 #endif
