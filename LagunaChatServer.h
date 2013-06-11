@@ -1,5 +1,5 @@
-#ifndef __ChatterBoxServer_H__
-#define __ChatterBoxServer_H__
+#ifndef __LagunaChatServer_H__
+#define __LagunaChatServer_H__
 
 #include <QStringList>
 #include <QTcpServer>
@@ -10,12 +10,12 @@
 
 #include "sqlserver.h"
 
-class ChatterBoxServer : public QTcpServer
+class LagunaChatServer : public QTcpServer
 {
     Q_OBJECT
 
     public:
-        ChatterBoxServer(QObject *parent=0);
+        LagunaChatServer(QObject *parent=0);
 
         void gotRegistrationMessage(QTcpSocket *client);
         void gotLoginMessage(QTcpSocket *client);

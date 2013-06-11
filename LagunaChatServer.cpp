@@ -1,5 +1,4 @@
-#include "ChatterBoxServer.h"
-#include "userlisttext.h"
+ï»¿#include "LagunaChatServer.h"
 #include "sqlserver.h"
 
 #include <QTcpSocket>
@@ -12,7 +11,7 @@
 #include <QMapIterator>
 #include <QMultiMap>
 
-ChatterBoxServer::ChatterBoxServer(QObject *parent) : QTcpServer(parent)
+LagunaChatServer::LagunaChatServer(QObject *parent) : QTcpServer(parent)
 {
     sql = new SQLServer();
 
@@ -23,12 +22,12 @@ ChatterBoxServer::ChatterBoxServer(QObject *parent) : QTcpServer(parent)
     connect(this,SIGNAL(acceptError(QAbstractSocket::SocketError)),this,SLOT(checkError(QAbstractSocket::SocketError)));
 }
 
-void ChatterBoxServer::checkError(QAbstractSocket::SocketError error)
+void LagunaChatServer::checkError(QAbstractSocket::SocketError error)
 {
     qDebug() << "Fehler: " << error;
 }
 
-void ChatterBoxServer::incomingConnection(qintptr socketfd)
+void LagunaChatServer::incomingConnection(qintptr socketfd)
 {
     QTcpSocket *client = new QTcpSocket(this);
     client->setSocketDescriptor(socketfd);
@@ -55,7 +54,7 @@ void ChatterBoxServer::incomingConnection(qintptr socketfd)
             if(client->peerAddress().toString() != address.toString())
             {
                 clients.insert(client);
-                qDebug() << "IP stimmt nicht überein";
+                qDebug() << "IP arent the same";
                 qDebug() << "New client from:" << client->peerAddress().toString();
                 connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
                 connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
@@ -65,7 +64,7 @@ void ChatterBoxServer::incomingConnection(qintptr socketfd)
             // ignore the request and disconnect the socket
             else if(client->peerAddress().toString() == address.toString())
             {
-                qDebug("IP stimmt überein");
+                qDebug("IPs are the same");
                 //client->write(QString("Server: Already logged in\n").toUtf8());
                 client->close();
 				return;
@@ -80,7 +79,7 @@ void ChatterBoxServer::incomingConnection(qintptr socketfd)
     }
 }
 
-void ChatterBoxServer::readyRead()
+void LagunaChatServer::readyRead()
 {
     QTcpSocket *client = (QTcpSocket*)sender();
     while(client->canReadLine())
@@ -138,7 +137,7 @@ void ChatterBoxServer::readyRead()
 
         in >> temp;
 
-        qDebug() << "Es sind noch " << client->bytesAvailable() << "Bytes im Socket übrig";
+        qDebug() << "There are " << client->bytesAvailable() << "Bytes left in the Socket ";
         if(temp == "\n")
         {
             qDebug() << "Endzeichen gelesen";
@@ -149,12 +148,12 @@ void ChatterBoxServer::readyRead()
     }
 }
 
-void ChatterBoxServer::kick()
+void LagunaChatServer::kick()
 {
 
 }
 
-void ChatterBoxServer::disconnected()
+void LagunaChatServer::disconnected()
 {
     QTcpSocket *client = (QTcpSocket*)sender();
     qDebug() << "Client disconnected:" << client->peerAddress().toString();
@@ -166,7 +165,7 @@ void ChatterBoxServer::disconnected()
 	ipAddresses.removeAt(ipAddresses.indexOf(client->peerAddress()));
 }
 
-void ChatterBoxServer::sendUserlist(QTcpSocket *client)
+void LagunaChatServer::sendUserlist(QTcpSocket *client)
 {
     QString usersFrom;
     //get all users(friends) from username
@@ -184,7 +183,7 @@ void ChatterBoxServer::sendUserlist(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::gotRegistrationMessage(QTcpSocket *client)
+void LagunaChatServer::gotRegistrationMessage(QTcpSocket *client)
 {
     QString email;
     QString password;
@@ -214,7 +213,7 @@ void ChatterBoxServer::gotRegistrationMessage(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::gotLoginMessage(QTcpSocket *client)
+void LagunaChatServer::gotLoginMessage(QTcpSocket *client)
 {
     QString email;
     QString password;
@@ -274,7 +273,7 @@ void ChatterBoxServer::gotLoginMessage(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::gotChatMessage()
+void LagunaChatServer::gotChatMessage()
 {
     QString fromMail;
     QString toMail;
@@ -317,7 +316,7 @@ void ChatterBoxServer::gotChatMessage()
 }
 
 
-void ChatterBoxServer::gotUserAddMessage()
+void LagunaChatServer::gotUserAddMessage()
 {
     QString from;
     QString to;
@@ -327,8 +326,8 @@ void ChatterBoxServer::gotUserAddMessage()
 
     qDebug() << "UserADD Request: " << from << " # " << to;
 
-    //WICHTIG
-    // Prüfen ob der User nicht schon Freund ist
+    // IMPORTANT
+    // Check if the user is not already a friend
     if(sql->isOnline(to))
     {
         if(sql->checkInvitations(to))
@@ -354,7 +353,7 @@ void ChatterBoxServer::gotUserAddMessage()
 }
 
 
-void ChatterBoxServer::gotUserDeleteMessage()
+void LagunaChatServer::gotUserDeleteMessage()
 {
     QString userEmail;
     QString oldFriendEmail;
@@ -381,7 +380,7 @@ void ChatterBoxServer::gotUserDeleteMessage()
 }
 
 
-void ChatterBoxServer::gotFileTranserMessage(QTcpSocket *client)
+void LagunaChatServer::gotFileTranserMessage(QTcpSocket *client)
 {
     QString dataToUser;
     QString dataFromUser;
@@ -421,7 +420,7 @@ void ChatterBoxServer::gotFileTranserMessage(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::hasUserInvitations(QTcpSocket *client)
+void LagunaChatServer::hasUserInvitations(QTcpSocket *client)
 {
     QString email;
     in >> email;
@@ -452,7 +451,7 @@ void ChatterBoxServer::hasUserInvitations(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::hasUserUnreadMessages(QTcpSocket *client)
+void LagunaChatServer::hasUserUnreadMessages(QTcpSocket *client)
 {
     // the user wants unreaded offline usermessages
     qDebug() << "The user wants unreaded messages";
@@ -482,7 +481,7 @@ void ChatterBoxServer::hasUserUnreadMessages(QTcpSocket *client)
 
 
 
-void ChatterBoxServer::answerOfUserAdd(QTcpSocket *client)
+void LagunaChatServer::answerOfUserAdd(QTcpSocket *client)
 {
     QString userEmail;
     QString friendEmail;
@@ -563,7 +562,7 @@ void ChatterBoxServer::answerOfUserAdd(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::answerOfFileTranser(QTcpSocket *client)
+void LagunaChatServer::answerOfFileTranser(QTcpSocket *client)
 {
     QString userWhoSendFileEmail;
     QString userWhoGetFileEmail;
@@ -615,7 +614,7 @@ void ChatterBoxServer::answerOfFileTranser(QTcpSocket *client)
 }
 
 
-void ChatterBoxServer::userGoOffline()
+void LagunaChatServer::userGoOffline()
 {
     QString user;
     // User is now offline
@@ -639,7 +638,7 @@ void ChatterBoxServer::userGoOffline()
         out << "\n";
     }
 }
-void ChatterBoxServer::answerOfFileTransferReady()
+void LagunaChatServer::answerOfFileTransferReady()
 {
     QString emailSender;
     QString emailReceiver;
