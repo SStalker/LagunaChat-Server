@@ -330,10 +330,12 @@ void LagunaChatServer::gotUserAddMessage()
     // Check if the user is not already a friend
     if(sql->isOnline(to))
     {
+        sql->writeInvitation(from,to,1);
+
         if(sql->checkInvitations(to))
         {
             // send invitation message to user
-            sql->writeInvitation(from,to,1);
+
             QMap<QString,QString> listNewFriends = sql->getAskedFriends(to);
             qDebug() << "Sende Liste mit: " << listNewFriends.size() << " Usern.";
             QDataStream out(users.value(to));
